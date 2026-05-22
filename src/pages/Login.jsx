@@ -137,7 +137,7 @@ export default function Login() {
 
             {error && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl p-4 break-all leading-relaxed">
-                ⚠️ {error}
+                {error}
               </div>
             )}
 

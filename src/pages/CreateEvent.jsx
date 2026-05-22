@@ -70,7 +70,7 @@ export default function CreateEvent() {
 
       <div className="bg-slate-900/50 border border-slate-800 backdrop-blur-xl rounded-3xl p-8 shadow-2xl relative">
         <div className="text-center mb-8">
-          <span className="text-4xl">🛠️</span>
+          <span className="text-4xl"></span>
           <h1 className="text-3xl font-extrabold tracking-tight text-white mt-3">Tạo Sự Kiện Blockchain</h1>
           <p className="text-sm text-slate-400 mt-2">
             Đăng ký và lưu trữ thông tin cấu hình sự kiện trực tiếp vào Smart Contract
@@ -122,7 +122,7 @@ export default function CreateEvent() {
 
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-xl p-4 break-all leading-relaxed">
-              ⚠️ {error}
+              {error}
             </div>
           )}
 
@@ -140,7 +140,7 @@ export default function CreateEvent() {
                     Đang gửi giao dịch lên blockchain...
                   </div>
                 ) : (
-                  "Xác Nhận Đăng Ký Sự Kiện 🚀"
+                  "Xác Nhận Đăng Ký Sự Kiện"
                 )}
               </span>
             </div>

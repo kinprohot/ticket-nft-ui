@@ -74,7 +74,7 @@ export default function Home() {
       <div className="text-center max-w-3xl mx-auto mb-16 relative">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-cyan-500/10 rounded-full blur-[60px] pointer-events-none" />
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 mb-4 border border-cyan-500/20">
-          🔥 Kỷ Nguyên Vé Số Hóa NFT
+          Kỷ Nguyên Vé Số Hóa NFT
         </span>
         <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-6">
           Sở Hữu Vé Độc Bản <br />
@@ -90,7 +90,7 @@ export default function Home() {
       <div className="flex flex-col sm:flex-row justify-between items-center mb-10 pb-6 border-b border-slate-900 gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            Sự kiện nổi bật <span className="animate-pulse">✨</span>
+            Sự kiện nổi bật <span className="animate-pulse"></span>
           </h2>
           <p className="text-slate-500 text-sm mt-1">Đúc vé trực tiếp bằng Smart Contract</p>
         </div>
@@ -101,7 +101,7 @@ export default function Home() {
               to="/create-event"
               className="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all"
             >
-              ➕ Tạo Sự Kiện Mới
+              Tạo Sự Kiện Mới
             </Link>
             {events.length === 0 && (
               <button
@@ -123,7 +123,7 @@ export default function Home() {
         </div>
       ) : error ? (
         <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-10 text-center max-w-xl mx-auto">
-          <p className="text-red-400 mb-4 font-medium">⚠️ {error}</p>
+          <p className="text-red-400 mb-4 font-medium"> {error}</p>
           <div className="text-xs text-slate-500 space-y-2 mb-6">
             <p>1. Đảm bảo nút blockchain local (Hardhat/Anvil/Ganache) đang chạy.</p>
             <p>2. Kiểm tra xem contract đã được deploy chưa.</p>
@@ -155,7 +155,7 @@ export default function Home() {
               disabled={isSeeding}
               className="bg-cyan-500 hover:bg-cyan-600 text-slate-950 px-6 py-3 rounded-xl font-bold transition-all inline-block shadow-lg shadow-cyan-500/20 disabled:opacity-50"
             >
-              {isSeeding ? "Đang đúc sự kiện..." : "Tự Động Nạp Dữ Liệu Sự Kiện Mẫu 🚀"}
+              {isSeeding ? "Đang đúc sự kiện..." : "Tự Động Nạp Dữ Liệu Sự Kiện Mẫu "}
             </button>
           )}
         </div>

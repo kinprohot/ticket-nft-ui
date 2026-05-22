@@ -94,7 +94,7 @@ export default function Dashboard() {
             Bảng Điều Khiển
           </span>
           <h1 className="text-3xl font-extrabold text-white mt-3 flex items-center gap-2">
-            Xin chào, {profile.isRegistered ? profile.name : "Nhà đầu tư"} 👋
+            Xin chào, {profile.isRegistered ? profile.name : "Nhà đầu tư"}
           </h1>
           <p className="text-slate-400 text-sm mt-1 font-mono break-all">
             {address}
@@ -278,7 +278,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="bg-slate-950 p-4 border border-slate-850 rounded-2xl text-xs text-slate-500 leading-relaxed space-y-1">
-                  <p className="font-semibold text-slate-400">💡 Lưu ý quan trọng:</p>
+                  <p className="font-semibold text-slate-400">Lưu ý quan trọng:</p>
                   <p>- Việc đăng ký / cập nhật hồ sơ sẽ yêu cầu ký một giao dịch lưu thông tin trực tiếp vào Smart Contract.</p>
                   <p>- Việc này tiêu tốn một khoản phí gas nhỏ trên mạng lưới.</p>
                 </div>
@@ -297,9 +297,9 @@ export default function Dashboard() {
                           Đang lưu lên blockchain...
                         </div>
                       ) : profile.isRegistered ? (
-                        "Cập Nhật Hồ Sơ Trên Blockchain ⚡"
+                        "Cập Nhật Hồ Sơ Trên Blockchain"
                       ) : (
-                        "Đăng Ký Khởi Tạo Hồ Sơ Mới 🚀"
+                        "Đăng Ký Khởi Tạo Hồ Sơ Mới"
                       )}
                     </span>
                   </div>
