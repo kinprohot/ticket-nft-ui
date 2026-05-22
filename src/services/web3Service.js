@@ -110,6 +110,26 @@ const CONTRACT_ABI = [
         "internalType": "uint256",
         "name": "_totalTickets",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_description",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_imageUrl",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_location",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_eventTime",
+        "type": "string"
       }
     ],
     "name": "createEvent",
@@ -164,6 +184,26 @@ const CONTRACT_ABI = [
         "internalType": "uint256",
         "name": "soldTickets",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "description",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "imageUrl",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "location",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "eventTime",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -215,6 +255,25 @@ const CONTRACT_ABI = [
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "ticketToEvent",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   }
 ];
 
@@ -233,6 +292,9 @@ class Web3Service {
   }
 
   init(rpcUrl, contractAddress) {
+    if (this.rpcUrl === rpcUrl && this.contractAddress === contractAddress && this.web3 && this.contract) {
+      return;
+    }
     this.rpcUrl = rpcUrl;
     this.contractAddress = contractAddress;
     this.web3 = new Web3(rpcUrl);
@@ -242,7 +304,7 @@ class Web3Service {
   getWeb3() {
     if (!this.web3) {
       // Fallback fallback init if not loaded
-      this.init("http://127.0.0.1:7545", "0xe78A0F7E098a58a74eE3B11A4dD238FF944bACb4");
+      this.init("http://127.0.0.1:7545", "0x83aE364a9A2b3DD19d8bE46A6b3E0b7eF0cF4adA");
     }
     return this.web3;
   }
@@ -294,6 +356,13 @@ class Web3Service {
     }
 
     const { balance, nonce } = await this.getAccountDetails(account.address);
+
+    // Check if contract is deployed before retrieving profile
+    const code = await web3Instance.eth.getCode(this.contractAddress);
+    if (code === "0x" || code === "0x0" || code === "0x00") {
+      throw new Error(`Không tìm thấy hợp đồng thông minh (Smart Contract) tại địa chỉ: ${this.contractAddress}. Vui lòng kiểm tra lại địa chỉ hợp đồng hoặc đảm bảo bạn đã triển khai (deploy) hợp đồng này lên blockchain node của mình.`);
+    }
+
     const profile = await this.getUserProfile(account.address);
 
     return {
@@ -314,6 +383,12 @@ class Web3Service {
     const account = web3Instance.eth.accounts.privateKeyToAccount(formattedKey);
     const contractInstance = this.getContract();
 
+    // Register with singleton wallet to enable auto-signing
+    const existing = web3Instance.eth.accounts.wallet.get(account.address);
+    if (!existing) {
+      web3Instance.eth.accounts.wallet.add(formattedKey);
+    }
+
     const tx = contractInstance.methods.registerProfile(name, email);
     const gas = await tx.estimateGas({ from: account.address });
 
@@ -328,7 +403,7 @@ class Web3Service {
     return { balance, nonce, profile, txHash: receipt.transactionHash };
   }
 
-  async createEvent(privateKey, name, priceEth, totalTickets) {
+  async createEvent(privateKey, name, priceEth, totalTickets, description = "", imageUrl = "", location = "", eventTime = "") {
     let formattedKey = privateKey.trim();
     if (!formattedKey.startsWith("0x")) {
       formattedKey = "0x" + formattedKey;
@@ -338,8 +413,22 @@ class Web3Service {
     const account = web3Instance.eth.accounts.privateKeyToAccount(formattedKey);
     const contractInstance = this.getContract();
 
+    // Register with singleton wallet to enable auto-signing
+    const existing = web3Instance.eth.accounts.wallet.get(account.address);
+    if (!existing) {
+      web3Instance.eth.accounts.wallet.add(formattedKey);
+    }
+
     const priceWei = web3Instance.utils.toWei(priceEth, "ether");
-    const tx = contractInstance.methods.createEvent(name, priceWei, totalTickets);
+    const tx = contractInstance.methods.createEvent(
+      name,
+      priceWei,
+      totalTickets,
+      description,
+      imageUrl,
+      location,
+      eventTime
+    );
     const gas = await tx.estimateGas({ from: account.address });
 
     const receipt = await tx.send({
@@ -361,6 +450,12 @@ class Web3Service {
     const account = web3Instance.eth.accounts.privateKeyToAccount(formattedKey);
     const contractInstance = this.getContract();
 
+    // Register with singleton wallet to enable auto-signing
+    const existing = web3Instance.eth.accounts.wallet.get(account.address);
+    if (!existing) {
+      web3Instance.eth.accounts.wallet.add(formattedKey);
+    }
+
     const priceWei = web3Instance.utils.toWei(priceEth, "ether");
     const tx = contractInstance.methods.buyTicket(eventId);
     const gas = await tx.estimateGas({
@@ -381,6 +476,12 @@ class Web3Service {
   async getEvents() {
     const contractInstance = this.getContract();
     try {
+      const web3Instance = this.getWeb3();
+      const code = await web3Instance.eth.getCode(this.contractAddress);
+      if (code === "0x" || code === "0x0" || code === "0x00") {
+        throw new Error(`Không tìm thấy hợp đồng thông minh (Smart Contract) tại địa chỉ: ${this.contractAddress}. Vui lòng kiểm tra lại địa chỉ hợp đồng.`);
+      }
+
       const countBig = await contractInstance.methods.eventCount().call();
       const count = Number(countBig);
       const list = [];
@@ -392,32 +493,73 @@ class Web3Service {
           price: this.web3.utils.fromWei(ev.price, "ether"),
           totalTickets: Number(ev.totalTickets),
           soldTickets: Number(ev.soldTickets),
+          description: ev.description || "",
+          imageUrl: ev.imageUrl || "",
+          location: ev.location || "",
+          eventTime: ev.eventTime || "",
         });
       }
       return list;
     } catch (err) {
       console.error("Failed to query events from contract:", err);
-      return [];
+      throw err;
     }
   }
 
   async getPastTransactions(address) {
     const contractInstance = this.getContract();
     try {
+      const web3Instance = this.getWeb3();
+      const code = await web3Instance.eth.getCode(this.contractAddress);
+      if (code === "0x" || code === "0x0" || code === "0x00") {
+        throw new Error(`Không tìm thấy hợp đồng thông minh (Smart Contract) tại địa chỉ: ${this.contractAddress}.`);
+      }
+
       // Find Transfer events targeting this user address
-      // Some RPC networks may restrict fromBlock 0, so we default to last 1000 blocks or fromBlock 0n with fallback
       const events = await contractInstance.getPastEvents("Transfer", {
         filter: { to: address },
         fromBlock: 0,
       });
 
-      return events.map((ev) => ({
-        tokenId: ev.returnValues.tokenId.toString(),
-        from: ev.returnValues.from,
-        to: ev.returnValues.to,
-        transactionHash: ev.transactionHash,
-        blockNumber: ev.blockNumber.toString(),
-      }));
+      const list = [];
+      for (const ev of events) {
+        const tokenIdStr = ev.returnValues.tokenId.toString();
+        const tokenId = Number(ev.returnValues.tokenId);
+
+        // Fetch eventId associated with this ticket tokenId
+        let eventId = "0";
+        try {
+          const evIdBig = await contractInstance.methods.ticketToEvent(tokenId).call();
+          eventId = evIdBig.toString();
+        } catch (e) {
+          console.warn("Failed to fetch eventId for tokenId", tokenId, e);
+        }
+
+        // Fetch event details
+        let eventTitle = "Vé Sự Kiện NFT";
+        let eventPrice = "0";
+        if (eventId !== "0") {
+          try {
+            const evDetails = await contractInstance.methods.events(Number(eventId)).call();
+            eventTitle = evDetails.name;
+            eventPrice = this.web3.utils.fromWei(evDetails.price, "ether");
+          } catch (e) {
+            console.warn("Failed to fetch event details for eventId", eventId, e);
+          }
+        }
+
+        list.push({
+          tokenId: tokenIdStr,
+          eventId,
+          eventTitle,
+          eventPrice,
+          from: ev.returnValues.from,
+          to: ev.returnValues.to,
+          transactionHash: ev.transactionHash,
+          blockNumber: ev.blockNumber.toString(),
+        });
+      }
+      return list;
     } catch (err) {
       console.warn("Failed to get past Transfer events, trying alternative scanner:", err);
       return [];

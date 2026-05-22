@@ -10,6 +10,10 @@ export default function EventCard({ id, image, title, price, soldTickets, totalT
         <img
           src={image}
           alt={title}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80";
+          }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute top-4 right-4 bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold border border-slate-800/80 flex items-center gap-1">

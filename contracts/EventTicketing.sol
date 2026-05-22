@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts@4.9.6/token/ERC721/ERC721.sol";
 
 contract EventTicketing is ERC721 {
     uint256 private _nextTokenId;
@@ -16,12 +16,19 @@ contract EventTicketing is ERC721 {
     // Ánh xạ (Mapping) từ địa chỉ ví -> Thông tin cá nhân
     mapping(address => User) public users;
 
+    // Ánh xạ từ tokenId -> eventId
+    mapping(uint256 => uint256) public ticketToEvent;
+
     struct Event {
         uint256 id;
         string name;
         uint256 price;
         uint256 totalTickets;
         uint256 soldTickets;
+        string description;
+        string imageUrl;
+        string location;
+        string eventTime;
     }
     mapping(uint256 => Event) public events;
 
@@ -39,10 +46,24 @@ contract EventTicketing is ERC721 {
     function createEvent(
         string memory _name,
         uint256 _price,
-        uint256 _totalTickets
+        uint256 _totalTickets,
+        string memory _description,
+        string memory _imageUrl,
+        string memory _location,
+        string memory _eventTime
     ) public {
         eventCount++;
-        events[eventCount] = Event(eventCount, _name, _price, _totalTickets, 0);
+        events[eventCount] = Event(
+            eventCount,
+            _name,
+            _price,
+            _totalTickets,
+            0,
+            _description,
+            _imageUrl,
+            _location,
+            _eventTime
+        );
     }
 
     function buyTicket(uint256 _eventId) public payable {
@@ -63,6 +84,7 @@ contract EventTicketing is ERC721 {
         myEvent.soldTickets++;
         uint256 tokenId = _nextTokenId++;
 
+        ticketToEvent[tokenId] = _eventId;
         _safeMint(msg.sender, tokenId);
     }
 }

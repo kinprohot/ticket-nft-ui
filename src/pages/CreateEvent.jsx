@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { updateAccount } from "../features/account/accountSlice";
 import Web3Service from "../services/web3Service";
@@ -7,10 +7,15 @@ import Web3Service from "../services/web3Service";
 export default function CreateEvent() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { rpcUrl, contractAddress } = useSelector((state) => state.account);
 
   const [name, setName] = useState("");
   const [priceEth, setPriceEth] = useState("");
   const [totalTickets, setTotalTickets] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -22,8 +27,15 @@ export default function CreateEvent() {
       return;
     }
 
-    if (!name.trim() || !priceEth.trim() || !totalTickets.trim()) {
-      setError("Vui lòng nhập đầy đủ tất cả thông tin!");
+    if (
+      !name.trim() ||
+      !priceEth.trim() ||
+      !totalTickets.trim() ||
+      !description.trim() ||
+      !location.trim() ||
+      !eventTime.trim()
+    ) {
+      setError("Vui lòng nhập đầy đủ tất cả thông tin bắt buộc!");
       return;
     }
 
@@ -40,9 +52,22 @@ export default function CreateEvent() {
     setIsLoading(true);
     setError("");
 
+    // Fallback Unsplash banner if no custom image is provided
+    const finalImageUrl = imageUrl.trim() || "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80";
+
     try {
       const service = Web3Service.getInstance();
-      const res = await service.createEvent(pvk, name, priceEth, Number(totalTickets));
+      service.init(rpcUrl, contractAddress);
+      const res = await service.createEvent(
+        pvk,
+        name,
+        priceEth,
+        Number(totalTickets),
+        description.trim(),
+        finalImageUrl,
+        location.trim(),
+        eventTime.trim()
+      );
 
       // Update Redux state with new balance and nonce
       dispatch(updateAccount({ balance: res.balance, nonce: res.nonce }));
@@ -70,7 +95,7 @@ export default function CreateEvent() {
 
       <div className="bg-slate-900/50 border border-slate-800 backdrop-blur-xl rounded-3xl p-8 shadow-2xl relative">
         <div className="text-center mb-8">
-          <span className="text-4xl"></span>
+          <span className="text-4xl">🎫</span>
           <h1 className="text-3xl font-extrabold tracking-tight text-white mt-3">Tạo Sự Kiện Blockchain</h1>
           <p className="text-sm text-slate-400 mt-2">
             Đăng ký và lưu trữ thông tin cấu hình sự kiện trực tiếp vào Smart Contract
@@ -80,7 +105,7 @@ export default function CreateEvent() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-              Tên Sự Kiện
+              Tên Sự Kiện <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -94,7 +119,7 @@ export default function CreateEvent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Giá Vé (ETH / MATIC)
+                Giá Vé (ETH / MATIC) <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -108,7 +133,7 @@ export default function CreateEvent() {
 
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Tổng Số Lượng Vé (Supply)
+                Tổng Số Lượng Vé (Supply) <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -118,6 +143,60 @@ export default function CreateEvent() {
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:border-cyan-500 focus:outline-none transition-colors text-slate-100 placeholder-slate-600 font-mono"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                📍 Địa Điểm Tổ Chức <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Ví dụ: Sân vận động Quốc gia Mỹ Đình..."
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:border-cyan-500 focus:outline-none transition-colors text-slate-100 placeholder-slate-600"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                📅 Thời Gian Diễn Ra <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={eventTime}
+                onChange={(e) => setEventTime(e.target.value)}
+                placeholder="Ví dụ: 20:00 - 25/12/2026..."
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:border-cyan-500 focus:outline-none transition-colors text-slate-100 placeholder-slate-600"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              📝 Mô Tả Chi Tiết Sự Kiện <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              rows="4"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Nhập thông tin giới thiệu, các nghệ sĩ tham gia, quy định vé..."
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:border-cyan-500 focus:outline-none transition-colors text-slate-100 placeholder-slate-600 resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              🖼️ Đường Dẫn Ảnh Banner (Mặc định nếu bỏ trống)
+            </label>
+            <input
+              type="text"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://images.unsplash.com/photo-..."
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:border-cyan-500 focus:outline-none transition-colors text-slate-100 placeholder-slate-600 font-mono"
+            />
           </div>
 
           {error && (

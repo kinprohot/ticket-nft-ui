@@ -11,14 +11,38 @@ const MOCK_BANNER_IMAGES = [
 ];
 
 const INITIAL_DEV_EVENTS = [
-  { name: "Concert Anh Trai Say Hi - Đà Nẵng", priceEth: "0.015", totalTickets: 200 },
-  { name: "Chung Kết Đấu Trường Danh Vọng Mùa Đông", priceEth: "0.005", totalTickets: 500 },
-  { name: "Giải Đấu Valorant VKU Mở Rộng", priceEth: "0.002", totalTickets: 300 },
+  {
+    name: "Concert Anh Trai Say Hi - Đà Nẵng",
+    priceEth: "0.015",
+    totalTickets: 200,
+    description: "Đêm nhạc bùng nổ quy tụ dàn Anh Trai hot nhất năm. Trải nghiệm hệ thống vé NFT độc bản, minh bạch và bảo mật tuyệt đối tại Đà Nẵng.",
+    imageUrl: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80",
+    location: "Sân vận động Quân khu 5, Đà Nẵng",
+    eventTime: "19:00 - 20/10/2026"
+  },
+  {
+    name: "Chung Kết Đấu Trường Danh Vọng Mùa Đông",
+    priceEth: "0.005",
+    totalTickets: 500,
+    description: "Trận chung kết đỉnh cao của giải đấu thể thao điện tử lớn nhất Việt Nam. Trải nghiệm những màn so tài mãn nhãn của các đội tuyển hàng đầu Việt Nam để giành chức vô địch.",
+    imageUrl: "https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    location: "Nhà thi đấu Quân khu 7, TP. Hồ Chí Minh",
+    eventTime: "14:00 - 05/11/2026"
+  },
+  {
+    name: "Giải Đấu Valorant VKU Mở Rộng",
+    priceEth: "0.002",
+    totalTickets: 300,
+    description: "Giải đấu Valorant sinh viên lớn nhất khu vực miền Trung, quy tụ các đội tuyển tài năng từ các trường đại học cao đẳng. Cơ hội cọ xát và nhận những phần thưởng giá trị.",
+    imageUrl: "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    location: "Khuôn viên trường Đại học CNTT & TT Việt - Hàn (VKU)",
+    eventTime: "08:00 - 12/12/2026"
+  }
 ];
 
 export default function Home() {
   const accountState = useSelector((state) => state.account);
-  const { status, address } = accountState;
+  const { status, address, rpcUrl, contractAddress } = accountState;
 
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +54,7 @@ export default function Home() {
     setError("");
     try {
       const service = Web3Service.getInstance();
+      service.init(rpcUrl, contractAddress);
       const list = await service.getEvents();
       setEvents(list);
     } catch (err) {
@@ -56,8 +81,18 @@ export default function Home() {
     setError("");
     try {
       const service = Web3Service.getInstance();
+      service.init(rpcUrl, contractAddress);
       for (const item of INITIAL_DEV_EVENTS) {
-        await service.createEvent(pvk, item.name, item.priceEth, item.totalTickets);
+        await service.createEvent(
+          pvk,
+          item.name,
+          item.priceEth,
+          item.totalTickets,
+          item.description,
+          item.imageUrl,
+          item.location,
+          item.eventTime
+        );
       }
       await fetchEvents();
     } catch (err) {
@@ -169,7 +204,7 @@ export default function Home() {
               price={event.price}
               soldTickets={event.soldTickets}
               totalTickets={event.totalTickets}
-              image={MOCK_BANNER_IMAGES[index % MOCK_BANNER_IMAGES.length]}
+              image={event.imageUrl || MOCK_BANNER_IMAGES[index % MOCK_BANNER_IMAGES.length]}
             />
           ))}
         </div>

@@ -22,6 +22,7 @@ export default function Dashboard() {
     if (showLoading) setIsLoadingTickets(true);
     try {
       const service = Web3Service.getInstance();
+      service.init(rpcUrl, contractAddress);
       
       // Update account details (balance & nonce)
       const accDetails = await service.getAccountDetails(address);
@@ -66,6 +67,7 @@ export default function Dashboard() {
     setIsSubmittingProfile(true);
     try {
       const service = Web3Service.getInstance();
+      service.init(rpcUrl, contractAddress);
       const res = await service.registerProfile(pvk, name, email);
       
       dispatch(updateProfile(res.profile));
@@ -205,6 +207,11 @@ export default function Dashboard() {
 
                     <div className="space-y-4">
                       <div>
+                        <span className="text-[9px] text-slate-500 block uppercase tracking-widest">SỰ KIỆN</span>
+                        <span className="text-slate-200 font-bold block truncate text-xs">{t.eventTitle || "Vé Sự Kiện NFT"}</span>
+                      </div>
+
+                      <div>
                         <span className="text-[9px] text-slate-500 block uppercase tracking-widest">SỞ HỮU CỦA</span>
                         <span className="text-slate-300 font-bold block truncate">{profile.name || "Wallet Account"}</span>
                       </div>
@@ -215,8 +222,8 @@ export default function Dashboard() {
                           <span className="text-cyan-400 font-extrabold text-sm font-sans"># {t.tokenId}</span>
                         </div>
                         <div>
-                          <span className="text-[9px] text-slate-500 block uppercase tracking-widest">BLOCK CODE</span>
-                          <span className="text-slate-300 font-bold font-mono">{t.blockNumber}</span>
+                          <span className="text-[9px] text-slate-500 block uppercase tracking-widest">GIÁ VÉ</span>
+                          <span className="text-slate-300 font-bold font-sans">{t.eventPrice || "0"} ETH</span>
                         </div>
                       </div>
 
@@ -239,7 +246,7 @@ export default function Dashboard() {
                             />
                           ))}
                         </div>
-                        <span className="text-[8px] text-slate-500 mt-1 uppercase tracking-widest">ERC721 TICKET TOKEN</span>
+                        <span className="text-[8px] text-slate-500 mt-1 uppercase tracking-widest font-mono">ERC721 TICKET TOKEN</span>
                       </div>
                     </div>
                   </div>

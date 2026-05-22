@@ -4,26 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import { updateAccount, updateProfile } from "../features/account/accountSlice";
 import Web3Service from "../services/web3Service";
 
-const MOCK_EVENT_LOCATIONS = {
-  1: {
-    location: "Sân vận động Quân khu 5, Đà Nẵng",
-    date: "20/10/2026 - 19:00",
-    description: "Đêm nhạc bùng nổ quy tụ dàn Anh Trai hot nhất năm. Trải nghiệm hệ thống vé NFT độc bản, minh bạch và bảo mật tuyệt đối.",
-    banner: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80"
-  },
-  2: {
-    location: "Nhà thi đấu Quân khu 7",
-    date: "05/11/2026 - 14:00",
-    description: "Trận chung kết đỉnh cao của làng esport Việt Nam. Các đội mạnh nhất tranh tài trực tiếp.",
-    banner: "https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-  },
-  3: {
-    location: "Khuôn viên trường VKU",
-    date: "12/12/2026 - 08:00",
-    description: "Giải đấu Valorant sinh viên lớn nhất khu vực miền Trung, quy tụ các team từ các trường đại học.",
-    banner: "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-  }
-};
+// On-chain metadata replaces static mock configurations
 
 const DEFAULT_BANNER = "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80";
 
@@ -31,7 +12,7 @@ export default function EventDetail() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const accountState = useSelector((state) => state.account);
-  const { status, address, profile } = accountState;
+  const { status, address, profile, rpcUrl, contractAddress } = accountState;
 
   const [event, setEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,6 +31,7 @@ export default function EventDetail() {
     setError("");
     try {
       const service = Web3Service.getInstance();
+      service.init(rpcUrl, contractAddress);
       const list = await service.getEvents();
       const ev = list.find((e) => e.id === id);
       if (ev) {
@@ -82,6 +64,7 @@ export default function EventDetail() {
     setIsActionLoading(true);
     try {
       const service = Web3Service.getInstance();
+      service.init(rpcUrl, contractAddress);
       const res = await service.registerProfile(pvk, regName, regEmail);
       
       // Update local Redux state
@@ -112,6 +95,7 @@ export default function EventDetail() {
     setIsActionLoading(true);
     try {
       const service = Web3Service.getInstance();
+      service.init(rpcUrl, contractAddress);
       const res = await service.buyTicket(pvk, event.id, event.price);
       
       dispatch(updateAccount({ balance: res.balance, nonce: res.nonce }));
@@ -157,11 +141,11 @@ export default function EventDetail() {
     );
   }
 
-  const staticMetadata = MOCK_EVENT_LOCATIONS[event.id] || {
-    location: "Khu vực ảo blockchain (Metaverse)",
-    date: "Tùy chỉnh - Liên hệ nhà tổ chức",
-    description: "Sự kiện được lưu trữ bảo mật trên blockchain. Mua vé để nhận mã khóa tham gia độc quyền.",
-    banner: DEFAULT_BANNER
+  const eventMetadata = {
+    location: event.location || "Khu vực ảo blockchain (Metaverse)",
+    date: event.eventTime || "Tùy chỉnh - Liên hệ nhà tổ chức",
+    description: event.description || "Sự kiện được lưu trữ bảo mật trên blockchain. Mua vé để nhận mã khóa tham gia độc quyền.",
+    banner: event.imageUrl || DEFAULT_BANNER
   };
 
   const isSoldOut = event.soldTickets >= event.totalTickets;
@@ -259,8 +243,12 @@ export default function EventDetail() {
       {/* Banner */}
       <div className="w-full h-[400px] rounded-3xl overflow-hidden shadow-2xl border border-slate-900 mb-10 relative">
         <img
-          src={staticMetadata.banner}
+          src={eventMetadata.banner}
           alt={event.title}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = DEFAULT_BANNER;
+          }}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
@@ -276,11 +264,11 @@ export default function EventDetail() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-900/30 border border-slate-800/80 rounded-2xl p-6">
             <div className="space-y-1">
               <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">📅 Thời Gian</span>
-              <p className="text-slate-200 text-sm font-semibold">{staticMetadata.date}</p>
+              <p className="text-slate-200 text-sm font-semibold">{eventMetadata.date}</p>
             </div>
             <div className="space-y-1">
               <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">📍 Địa Điểm</span>
-              <p className="text-slate-200 text-sm font-semibold">{staticMetadata.location}</p>
+              <p className="text-slate-200 text-sm font-semibold">{eventMetadata.location}</p>
             </div>
           </div>
 
@@ -289,7 +277,7 @@ export default function EventDetail() {
           <div>
             <h3 className="text-xl font-bold text-white mb-3">Giới thiệu sự kiện</h3>
             <p className="text-slate-400 leading-relaxed text-sm">
-              {staticMetadata.description}
+              {eventMetadata.description}
             </p>
           </div>
 
