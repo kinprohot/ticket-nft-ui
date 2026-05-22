@@ -29,6 +29,7 @@ contract EventTicketing is ERC721 {
         string imageUrl;
         string location;
         string eventTime;
+        address payable organizer;
     }
     mapping(uint256 => Event) public events;
 
@@ -62,7 +63,8 @@ contract EventTicketing is ERC721 {
             _description,
             _imageUrl,
             _location,
-            _eventTime
+            _eventTime,
+            payable(msg.sender)
         );
     }
 
@@ -80,6 +82,10 @@ contract EventTicketing is ERC721 {
         );
         require(msg.value == myEvent.price, "Khong gui dung so tien");
         require(myEvent.soldTickets < myEvent.totalTickets, "Da het ve");
+
+        // Chuyển toàn bộ tiền mua vé trực tiếp cho ví người tạo sự kiện (organizer)
+        (bool success, ) = myEvent.organizer.call{value: msg.value}("");
+        require(success, "Chuyen tien cho organizer that bai");
 
         myEvent.soldTickets++;
         uint256 tokenId = _nextTokenId++;

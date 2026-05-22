@@ -204,6 +204,11 @@ const CONTRACT_ABI = [
         "internalType": "string",
         "name": "eventTime",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "organizer",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -497,6 +502,7 @@ class Web3Service {
           imageUrl: ev.imageUrl || "",
           location: ev.location || "",
           eventTime: ev.eventTime || "",
+          organizer: ev.organizer || "",
         });
       }
       return list;
