@@ -309,7 +309,7 @@ class Web3Service {
   getWeb3() {
     if (!this.web3) {
       // Fallback fallback init if not loaded
-      this.init("http://127.0.0.1:7545", "0xf8e81D47203A594245E36C48e151709F0C19fBe8");
+      this.init("http://127.0.0.1:7545", "0xF2FaeDf53680B2234940907ED4322673701b71d9");
     }
     return this.web3;
   }

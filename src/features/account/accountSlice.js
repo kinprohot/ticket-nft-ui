@@ -11,7 +11,7 @@ const initialState = {
     isRegistered: false,
   },
   rpcUrl: "http://127.0.0.1:7545", // Default Ganache GUI port
-  contractAddress: "0xf8e81D47203A594245E36C48e151709F0C19fBe8", // Deployed contract address
+  contractAddress: "0xF2FaeDf53680B2234940907ED4322673701b71d9", // Deployed contract address
 };
 
 export const accountSlice = createSlice({
