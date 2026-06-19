@@ -12,7 +12,7 @@ export default function Login() {
   const [privateKey, setPrivateKey] = useState("");
   const [rpcUrl, setRpcUrl] = useState(currentNetwork.rpcUrl || "http://127.0.0.1:7545");
   const [contractAddress, setContractAddress] = useState(
-    currentNetwork.contractAddress || "0xF2FaeDf53680B2234940907ED4322673701b71d9"
+    currentNetwork.contractAddress || "0x38F7132b9C8D197097006d8E1D8B3B20e7d3C673"
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -75,7 +75,7 @@ export default function Login() {
   const handleAutoFillDev = () => {
     setPrivateKey("0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d");
     setRpcUrl("http://127.0.0.1:7545");
-    setContractAddress("0xF2FaeDf53680B2234940907ED4322673701b71d9");
+    setContractAddress("0x38F7132b9C8D197097006d8E1D8B3B20e7d3C673");
   };
 
   return (
@@ -117,7 +117,7 @@ export default function Login() {
                 type="text"
                 value={contractAddress}
                 onChange={(e) => setContractAddress(e.target.value)}
-                placeholder="0xF2FaeDf53680B2234940907ED4322673701b71d9"
+                placeholder="0x38F7132b9C8D197097006d8E1D8B3B20e7d3C673"
                 className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:border-cyan-500 focus:outline-none transition-colors text-slate-100 placeholder-slate-600 font-mono"
               />
             </div>

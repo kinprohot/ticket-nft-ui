@@ -7,7 +7,7 @@ contract EventTicketing is ERC721 {
     uint256 private _nextTokenId;
     uint256 public eventCount;
 
-    // --- TÍNH NĂNG MỚI: QUẢN LÝ USER ---
+    // --- TÍNH NĂNG: QUẢN LÝ USER ---
     struct User {
         string name;
         string email;
